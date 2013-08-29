@@ -4,6 +4,8 @@
  */
 package com.kamigun.gw2eventtracker.config;
 
+import com.kamigun.gw2eventtracker.model.gw2.Names;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,5 +34,15 @@ public class ApplicationConfig extends WebMvcConfigurerAdapter {
         viewResolver.setPrefix("/WEB-INF/jsp/");
         viewResolver.setSuffix(".jsp");
         return viewResolver;
+    }
+    
+    @Bean
+    public DefaultHttpClient httpClient() {
+        return new DefaultHttpClient();
+    }
+    
+    @Bean
+    public Names names() {
+        return new Names();
     }
 }
