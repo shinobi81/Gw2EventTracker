@@ -6,12 +6,13 @@ package com.kamigun.gw2eventtracker.service.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class EventsServiceImpl implements EventsService {
     @Autowired
     private DefaultHttpClient httpClient;
     private ObjectMapper mapper = new ObjectMapper();
-    private Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private Log logger = LogFactory.getLog(getClass());
 
     @Override
     public GetEventsServiceResponse getEvents(GetEventsServiceRequest getEventsRequest) throws Exception {
