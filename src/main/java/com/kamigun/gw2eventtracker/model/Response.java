@@ -10,6 +10,7 @@ package com.kamigun.gw2eventtracker.model;
  */
 public class Response {
 
+    public static final String BEAN_ID = "response";
     public static final String RESULT_OK = "ok";
     public static final String RESULT_KO = "ko";
     private String result = RESULT_OK;
