@@ -45,20 +45,26 @@ public class NamingServiceImpl implements NamingService {
                 .setParameter("lang", lang);
         HttpGet httpGet = new HttpGet(builder.build());
 
-        HttpResponse httpResponse = httpClient.execute(httpGet);
-        InputStream content = httpResponse.getEntity().getContent();
-        StatusLine statusLine = httpResponse.getStatusLine();
-        logger.info(statusLine);
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            InputStream content = httpResponse.getEntity().getContent();
+            StatusLine statusLine = httpResponse.getStatusLine();
+            logger.info(statusLine);
 
-        if (statusLine.getStatusCode() == 200) {
-            List<EventName> eventNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, EventName.class));
-            for (EventName eventName : eventNames) {
-                names.getEventNames().put(eventName.getId(), eventName.getName());
+            if (statusLine.getStatusCode() == 200) {
+                List<EventName> eventNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, EventName.class));
+                for (EventName eventName : eventNames) {
+                    names.getEventNames().put(eventName.getId(), eventName.getName());
+                }
+
+            } else {
+                GwServiceError error = mapper.readValue(content, GwServiceError.class);
+                logger.error(error.getText());
             }
-            
-        } else {
-            GwServiceError error = mapper.readValue(content, GwServiceError.class);
-            logger.error(error.getText());
+        } catch (Exception e) {
+            logger.error(e, e);
+        } finally {
+            httpGet.releaseConnection();
         }
     }
 
@@ -71,19 +77,25 @@ public class NamingServiceImpl implements NamingService {
                 .setParameter("lang", lang);
         HttpGet httpGet = new HttpGet(builder.build());
 
-        HttpResponse httpResponse = httpClient.execute(httpGet);
-        InputStream content = httpResponse.getEntity().getContent();
-        StatusLine statusLine = httpResponse.getStatusLine();
-        logger.info(statusLine);
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            InputStream content = httpResponse.getEntity().getContent();
+            StatusLine statusLine = httpResponse.getStatusLine();
+            logger.info(statusLine);
 
-        if (statusLine.getStatusCode() == 200) {
-            List<MapName> mapNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, MapName.class));
-            for (MapName mapName : mapNames) {
-                names.getEventNames().put(mapName.getId(), mapName.getName());
+            if (statusLine.getStatusCode() == 200) {
+                List<MapName> mapNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, MapName.class));
+                for (MapName mapName : mapNames) {
+                    names.getEventNames().put(mapName.getId(), mapName.getName());
+                }
+            } else {
+                GwServiceError error = mapper.readValue(content, GwServiceError.class);
+                logger.error(error.getText());
             }
-        } else {
-            GwServiceError error = mapper.readValue(content, GwServiceError.class);
-            logger.error(error.getText());
+        } catch (Exception e) {
+            logger.error(e, e);
+        } finally {
+            httpGet.releaseConnection();
         }
     }
 
@@ -96,19 +108,25 @@ public class NamingServiceImpl implements NamingService {
                 .setParameter("lang", lang);
         HttpGet httpGet = new HttpGet(builder.build());
 
-        HttpResponse httpResponse = httpClient.execute(httpGet);
-        InputStream content = httpResponse.getEntity().getContent();
-        StatusLine statusLine = httpResponse.getStatusLine();
-        logger.info(statusLine);
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            InputStream content = httpResponse.getEntity().getContent();
+            StatusLine statusLine = httpResponse.getStatusLine();
+            logger.info(statusLine);
 
-        if (statusLine.getStatusCode() == 200) {
-            List<WorldName> worldNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, WorldName.class));
-            for (WorldName worldName : worldNames) {
-                names.getEventNames().put(worldName.getId(), worldName.getName());
+            if (statusLine.getStatusCode() == 200) {
+                List<WorldName> worldNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, WorldName.class));
+                for (WorldName worldName : worldNames) {
+                    names.getEventNames().put(worldName.getId(), worldName.getName());
+                }
+            } else {
+                GwServiceError error = mapper.readValue(content, GwServiceError.class);
+                logger.error(error.getText());
             }
-        } else {
-            GwServiceError error = mapper.readValue(content, GwServiceError.class);
-            logger.error(error.getText());
+        } catch (Exception e) {
+            logger.error(e, e);
+        } finally {
+            httpGet.releaseConnection();
         }
     }
 

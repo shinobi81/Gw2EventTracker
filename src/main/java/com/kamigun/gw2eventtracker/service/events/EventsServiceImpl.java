@@ -29,7 +29,7 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public GetEventsServiceResponse getEvents(GetEventsServiceRequest getEventsRequest) throws Exception {
-        GetEventsServiceResponse getEventsServiceResponse;
+        GetEventsServiceResponse getEventsServiceResponse = null;
 
         Integer eventId = getEventsRequest.getEventId();
         Integer mapId = getEventsRequest.getMapId();
@@ -48,13 +48,23 @@ public class EventsServiceImpl implements EventsService {
         }
         HttpGet httpGet = new HttpGet(builder.build());
 
-        HttpResponse httpResponse = httpClient.execute(httpGet);
-        InputStream content = httpResponse.getEntity().getContent();
-        StatusLine statusLine = httpResponse.getStatusLine();
-        logger.info(statusLine);
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            StatusLine statusLine = httpResponse.getStatusLine();
+            logger.info(statusLine);
 
-        getEventsServiceResponse = mapper.readValue(content, GetEventsServiceResponse.class);
-        
+            int statusCode = statusLine != null ? statusLine.getStatusCode() : -1;
+            if (statusCode == 200) {
+                InputStream content = httpResponse.getEntity().getContent();
+                getEventsServiceResponse = mapper.readValue(content, GetEventsServiceResponse.class);
+            }
+        } catch (Exception e) {
+            logger.error(e, e);
+        } finally {
+            httpGet.releaseConnection();
+        }
+
+
         return getEventsServiceResponse;
     }
 }
