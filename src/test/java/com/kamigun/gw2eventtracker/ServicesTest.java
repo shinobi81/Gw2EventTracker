@@ -9,7 +9,19 @@ import com.kamigun.gw2eventtracker.service.events.EventsService;
 import com.kamigun.gw2eventtracker.service.events.EventsServiceImpl;
 import com.kamigun.gw2eventtracker.service.events.GetEventsServiceRequest;
 import com.kamigun.gw2eventtracker.service.events.GetEventsServiceResponse;
+import com.kamigun.gw2eventtracker.service.naming.GetEventNamesRequest;
+import com.kamigun.gw2eventtracker.service.naming.GetMapNamesRequest;
+import com.kamigun.gw2eventtracker.service.naming.GetWorldNamesRequest;
+import com.kamigun.gw2eventtracker.service.naming.NamingService;
+import com.kamigun.gw2eventtracker.service.naming.NamingServiceImpl;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.SchemeRegistryFactory;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -52,8 +64,28 @@ public class ServicesTest {
         }
 
         @Bean
+        public NamingService namingService() {
+            return new NamingServiceImpl();
+        }
+
+        @Bean
         public DefaultHttpClient httpClient() {
-            return new DefaultHttpClient();
+            HttpParams params = new SyncBasicHttpParams();
+            HttpConnectionParams.setSocketBufferSize(params, 16384);
+            HttpConnectionParams.setConnectionTimeout(params, 60000);
+            HttpConnectionParams.setSoTimeout(params, 60000);
+
+            SchemeRegistry schemeRegistry = SchemeRegistryFactory.createDefault();
+
+            PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager(schemeRegistry);
+            connectionManager.setDefaultMaxPerRoute(1000);
+            connectionManager.setMaxTotal(1000);
+
+            DefaultHttpClient client = new DefaultHttpClient(connectionManager, params);
+
+            client.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(3, true));
+
+            return client;
         }
 
         @Bean
@@ -64,26 +96,28 @@ public class ServicesTest {
     @Autowired
     private EventsService eventsService;
     @Autowired
+    private NamingService namingService;
+    @Autowired
     private Names names;
-    
+
     @BeforeClass
     public static void setUpClass() {
-        logger.info("BeforeClass");
+//        logger.info("BeforeClass");
     }
 
     @AfterClass
     public static void tearDownClass() {
-        logger.info("AfterClass");
+//        logger.info("AfterClass");
     }
 
     @Before
     public void setUp() {
-        logger.info("Before");
+//        logger.info("Before");
     }
 
     @After
     public void tearDown() {
-        logger.info("After");
+//        logger.info("After");
     }
 
     @Test
@@ -100,5 +134,50 @@ public class ServicesTest {
         }
 
         Assert.assertNotNull(getEventsServiceResponse);
+    }
+    
+    @Test
+    public void eventNamesIntegrityTest() {
+        Assert.assertEquals(names.getEventNames().size(), 3107);
+        
+        try {
+            namingService.getEventNames(new GetEventNamesRequest());
+        } catch (Exception e) {
+            logger.error(e, e);
+        }
+
+        Assert.assertEquals(names.getEventNames().size(), 3107);
+        
+        Assert.assertEquals(names.getEventNames().get("BAD81BA0-60CF-4F3B-A341-57C426085D48"), "Moa Racer Meep");
+    }
+    
+    @Test
+    public void mapNamesIntegrityTest() {
+        Assert.assertEquals(names.getMapNames().size(), 29);
+        
+        try {
+            namingService.getMapNames(new GetMapNamesRequest());
+        } catch (Exception e) {
+            logger.error(e, e);
+        }
+
+        Assert.assertEquals(names.getMapNames().size(), 29);
+        
+        Assert.assertEquals(names.getMapNames().get("50"), "Lion's Arch");
+    }
+    
+    @Test
+    public void worldNamesIntegrityTest() {
+        Assert.assertEquals(names.getWorldNames().size(), 51);
+        
+        try {
+            namingService.getWorldNames(new GetWorldNamesRequest());
+        } catch (Exception e) {
+            logger.error(e, e);
+        }
+
+        Assert.assertEquals(names.getWorldNames().size(), 51);
+        
+        Assert.assertEquals(names.getWorldNames().get("1011"), "Stormbluff Isle");
     }
 }
