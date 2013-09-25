@@ -86,7 +86,7 @@ public class NamingServiceImpl implements NamingService {
             if (statusLine.getStatusCode() == 200) {
                 List<MapName> mapNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, MapName.class));
                 for (MapName mapName : mapNames) {
-                    names.getEventNames().put(mapName.getId(), mapName.getName());
+                    names.getMapNames().put(mapName.getId(), mapName.getName());
                 }
             } else {
                 GwServiceError error = mapper.readValue(content, GwServiceError.class);
@@ -117,7 +117,7 @@ public class NamingServiceImpl implements NamingService {
             if (statusLine.getStatusCode() == 200) {
                 List<WorldName> worldNames = mapper.readValue(content, mapper.getTypeFactory().constructCollectionType(List.class, WorldName.class));
                 for (WorldName worldName : worldNames) {
-                    names.getEventNames().put(worldName.getId(), worldName.getName());
+                    names.getWorldNames().put(worldName.getId(), worldName.getName());
                 }
             } else {
                 GwServiceError error = mapper.readValue(content, GwServiceError.class);
