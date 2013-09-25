@@ -4,6 +4,7 @@ package com.kamigun.gw2eventtracker;
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+import com.kamigun.gw2eventtracker.model.gw2.Event;
 import com.kamigun.gw2eventtracker.model.gw2.Names;
 import com.kamigun.gw2eventtracker.service.events.EventsService;
 import com.kamigun.gw2eventtracker.service.events.EventsServiceImpl;
@@ -14,6 +15,7 @@ import com.kamigun.gw2eventtracker.service.naming.GetMapNamesRequest;
 import com.kamigun.gw2eventtracker.service.naming.GetWorldNamesRequest;
 import com.kamigun.gw2eventtracker.service.naming.NamingService;
 import com.kamigun.gw2eventtracker.service.naming.NamingServiceImpl;
+import java.util.List;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -134,12 +136,35 @@ public class ServicesTest {
         }
 
         Assert.assertNotNull(getEventsServiceResponse);
+
+        int eventsSize = 0;
+        boolean eventFound = false;
+        if (getEventsServiceResponse != null) {
+            List<Event> events = getEventsServiceResponse.getEvents();
+            if (events != null) {
+                eventsSize = events.size();
+                
+                for (Event event : events) {
+                    String eventId = event.getEventId();
+                    String state = event.getState();
+                    if ("9522BF8A-5B2E-4257-AF17-49AF3BF81665".equals(eventId) &&
+                            (Event.STATE_ACTIVE.equals(state) || Event.STATE_FAIL.equals(state) || (Event.STATE_INACTIVE.equals(state))
+                            || (Event.STATE_PREPARATION.equals(state)) || (Event.STATE_SUCCESS.equals(state)) || (Event.STATE_WARMUP.equals(state)))) {
+                        eventFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        Assert.assertEquals(eventsSize, 86);
+        Assert.assertTrue(eventFound);
     }
-    
+
     @Test
     public void eventNamesIntegrityTest() {
         Assert.assertEquals(names.getEventNames().size(), 3107);
-        
+
         try {
             namingService.getEventNames(new GetEventNamesRequest());
         } catch (Exception e) {
@@ -147,14 +172,14 @@ public class ServicesTest {
         }
 
         Assert.assertEquals(names.getEventNames().size(), 3107);
-        
+
         Assert.assertEquals(names.getEventNames().get("BAD81BA0-60CF-4F3B-A341-57C426085D48"), "Moa Racer Meep");
     }
-    
+
     @Test
     public void mapNamesIntegrityTest() {
         Assert.assertEquals(names.getMapNames().size(), 29);
-        
+
         try {
             namingService.getMapNames(new GetMapNamesRequest());
         } catch (Exception e) {
@@ -162,14 +187,14 @@ public class ServicesTest {
         }
 
         Assert.assertEquals(names.getMapNames().size(), 29);
-        
+
         Assert.assertEquals(names.getMapNames().get("50"), "Lion's Arch");
     }
-    
+
     @Test
     public void worldNamesIntegrityTest() {
         Assert.assertEquals(names.getWorldNames().size(), 51);
-        
+
         try {
             namingService.getWorldNames(new GetWorldNamesRequest());
         } catch (Exception e) {
@@ -177,7 +202,7 @@ public class ServicesTest {
         }
 
         Assert.assertEquals(names.getWorldNames().size(), 51);
-        
+
         Assert.assertEquals(names.getWorldNames().get("1011"), "Stormbluff Isle");
     }
 }
