@@ -25,7 +25,7 @@
     specified for component-scanning -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>com.acme.AppConfig</param-value>
+        <param-value>com.kamigun.gw2eventtracker.config.ApplicationConfig</param-value>
     </context-param>
 
     <!-- Bootstrap the root application context as usual using ContextLoaderListener -->
