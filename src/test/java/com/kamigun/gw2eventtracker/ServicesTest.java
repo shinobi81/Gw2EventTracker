@@ -203,7 +203,7 @@ public class ServicesTest {
     @Test
     public void ttsServiceTest() throws Exception {
         try {
-            this.namingService.getEventNames(new GetEventNamesRequest());
+            namingService.getEventNames(new GetEventNamesRequest());
         } catch (Exception e) {
             logger.error(e, e);
         }
@@ -212,7 +212,7 @@ public class ServicesTest {
             GetEventsServiceRequest getEventsServiceRequest = new GetEventsServiceRequest();
             getEventsServiceRequest.setMapId(Integer.valueOf(35));
             getEventsServiceRequest.setWorldId(Integer.valueOf(2010));
-            getEventsServiceResponse = this.eventsService.getEvents(getEventsServiceRequest);
+            getEventsServiceResponse = eventsService.getEvents(getEventsServiceRequest);
         } catch (Exception e) {
             logger.error(e, e);
         }
@@ -222,12 +222,12 @@ public class ServicesTest {
                 for (Event event : events) {
                     String eventId = event.getEventId();
                     if ("33F76E9E-0BB6-46D0-A3A9-BE4CDFC4A3A4".equals(eventId)) {
-                        String eventName = (String) this.names.getEventNames().get(eventId);
+                        String eventName = (String) names.getEventNames().get(eventId);
                         String state = event.getState();
 
                         DoSpeakServiceRequest doSpeakServiceRequest = new DoSpeakServiceRequest();
                         doSpeakServiceRequest.setText(eventName + " " + state);
-                        this.textToSpeechService.doSpeak(doSpeakServiceRequest);
+                        textToSpeechService.doSpeak(doSpeakServiceRequest);
 
                         break;
                     }
