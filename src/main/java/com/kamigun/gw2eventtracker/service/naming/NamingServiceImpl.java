@@ -17,7 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class NamingServiceImpl implements NamingService {
 
     @Autowired
-    private DefaultHttpClient httpClient;
+    private CloseableHttpClient httpClient;
     @Autowired
     private Names names;
     private ObjectMapper mapper = new ObjectMapper();

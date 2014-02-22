@@ -15,14 +15,11 @@ import com.kamigun.gw2eventtracker.service.tts.DoSpeakServiceRequest;
 import com.kamigun.gw2eventtracker.service.tts.TextToSpeechService;
 import com.kamigun.gw2eventtracker.service.tts.TextToSpeechServiceImpl;
 import java.util.List;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.impl.conn.SchemeRegistryFactory;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
+import java.util.concurrent.TimeUnit;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -78,38 +75,32 @@ public class ServicesTest {
         }
 
         @Bean
-        public DefaultHttpClient httpClient() {
-            HttpParams params = new SyncBasicHttpParams();
-            HttpConnectionParams.setSocketBufferSize(params, 16384);
-            HttpConnectionParams.setConnectionTimeout(params, 60000);
-            HttpConnectionParams.setSoTimeout(params, 60000);
-
-            SchemeRegistry schemeRegistry = SchemeRegistryFactory.createDefault();
-
-            PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager(schemeRegistry);
+        public CloseableHttpClient httpClient() {
+            PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(60000, TimeUnit.MILLISECONDS);
             connectionManager.setDefaultMaxPerRoute(1000);
             connectionManager.setMaxTotal(1000);
 
-            DefaultHttpClient client = new DefaultHttpClient(connectionManager, params);
+            CloseableHttpClient httpclient = HttpClients.custom()
+                    .setConnectionManager(connectionManager)
+                    .setRetryHandler(new StandardHttpRequestRetryHandler(3, true))
+                    .build();
 
-            client.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(3, true));
-
-            return client;
+            return httpclient;
         }
 
         @Bean
         public Names names() {
             return new Names();
         }
-        
+
         @Bean
         public TextToSpeechService textToSpeechService() {
             return new TextToSpeechServiceImpl();
         }
     }
-    
+
     @BeforeClass
-        public static void setUpClass() {
+    public static void setUpClass() {
 //        logger.info("BeforeClass");
     }
 
@@ -144,71 +135,69 @@ public class ServicesTest {
 
         int eventsSize = 0;
         boolean eventFound = false;
-        if (getEventsServiceResponse != null) {
-            List<Event> events = getEventsServiceResponse.getEvents();
-            if (events != null) {
-                eventsSize = events.size();
-                
-                for (Event event : events) {
-                    String eventId = event.getEventId();
-                    String state = event.getState();
-                    if ("9522BF8A-5B2E-4257-AF17-49AF3BF81665".equals(eventId) &&
-                            (Event.STATE_ACTIVE.equals(state) || Event.STATE_FAIL.equals(state) || (Event.STATE_INACTIVE.equals(state))
-                            || (Event.STATE_PREPARATION.equals(state)) || (Event.STATE_SUCCESS.equals(state)) || (Event.STATE_WARMUP.equals(state)))) {
-                        eventFound = true;
-                        break;
-                    }
+        List<Event> events = getEventsServiceResponse.getEvents();
+        if (events != null) {
+            eventsSize = events.size();
+
+            for (Event event : events) {
+                String eventId = event.getEventId();
+                String state = event.getState();
+                if ("9522BF8A-5B2E-4257-AF17-49AF3BF81665".equals(eventId)
+                        && (Event.STATE_ACTIVE.equals(state) || Event.STATE_FAIL.equals(state) || (Event.STATE_INACTIVE.equals(state))
+                        || (Event.STATE_PREPARATION.equals(state)) || (Event.STATE_SUCCESS.equals(state)) || (Event.STATE_WARMUP.equals(state)))) {
+                    eventFound = true;
+                    break;
                 }
             }
         }
 
-        Assert.assertEquals(eventsSize, 86);
+        Assert.assertEquals(86, eventsSize);
         Assert.assertTrue(eventFound);
     }
 
     @Test
     public void eventNamesIntegrityTest() {
-        Assert.assertEquals(names.getEventNames().size(), 2839);
+        Assert.assertEquals(2841, names.getEventNames().size());
 
         try {
             namingService.getEventNames(new GetEventNamesRequest());
         } catch (Exception e) {
             logger.error(e, e);
         }
-        
-        Assert.assertEquals(names.getEventNames().size(), 2839);
 
-        Assert.assertEquals(names.getEventNames().get("17F43535-6677-4AB5-A1F3-B34D833BD97D"), "Stop the skritt burglar before it escapes with the treasure.");
+        Assert.assertEquals(2841, names.getEventNames().size());
+
+        Assert.assertEquals("Stop the skritt burglar before it escapes with the treasure.", names.getEventNames().get("17F43535-6677-4AB5-A1F3-B34D833BD97D"));
     }
 
     @Test
     public void mapNamesIntegrityTest() {
-        Assert.assertEquals(names.getMapNames().size(), 28);
+        Assert.assertEquals(28, names.getMapNames().size());
 
         try {
             namingService.getMapNames(new GetMapNamesRequest());
         } catch (Exception e) {
             logger.error(e, e);
         }
-        
-        Assert.assertEquals(names.getMapNames().size(), 28);
 
-        Assert.assertEquals(names.getMapNames().get("15"), "Queensdale");
+        Assert.assertEquals(28, names.getMapNames().size());
+
+        Assert.assertEquals("Queensdale", names.getMapNames().get("15"));
     }
 
     @Test
     public void worldNamesIntegrityTest() {
-        Assert.assertEquals(names.getWorldNames().size(), 51);
-        
+        Assert.assertEquals(51, names.getWorldNames().size());
+
         try {
             namingService.getWorldNames(new GetWorldNamesRequest());
         } catch (Exception e) {
             logger.error(e, e);
         }
-        
-        Assert.assertEquals(names.getWorldNames().size(), 51);
 
-        Assert.assertEquals(names.getWorldNames().get("1011"), "Stormbluff Isle");
+        Assert.assertEquals(51, names.getWorldNames().size());
+
+        Assert.assertEquals("Stormbluff Isle", names.getWorldNames().get("1011"));
     }
 
     @Test

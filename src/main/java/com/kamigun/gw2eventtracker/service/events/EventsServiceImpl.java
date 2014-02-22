@@ -10,7 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class EventsServiceImpl implements EventsService {
 
     @Autowired
-    private DefaultHttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private ObjectMapper mapper = new ObjectMapper();
     private Logger logger = Logger.getLogger(getClass().getSimpleName());
 
